@@ -1,6 +1,7 @@
 import { z } from "zod";
 import _sampleSize from "lodash/sampleSize";
 import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
+import { TRPCError } from "@trpc/server";
 
 export const questionRouter = createTRPCRouter({
   generateQuiz: publicProcedure
@@ -44,5 +45,22 @@ export const questionRouter = createTRPCRouter({
         questions: randomQuestions,
         scoreId: createdScore.id,
       };
+    }),
+  getQuestionById: publicProcedure
+    .input(z.object({ id: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const question = await ctx.prisma.question.findUnique({
+        where: { id: input.id },
+        select: { emoji: true, id: true, type: true },
+      });
+
+      if (!question) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "No question found",
+        });
+      }
+
+      return question;
     }),
 });

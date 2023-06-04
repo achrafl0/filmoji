@@ -1,9 +1,11 @@
 import Head from "next/head";
 
-export const HeadLayout = () => {
+export const HeadLayout = (
+  { title }: { title?: string } = { title: "Filmoji 🍿" }
+) => {
   return (
     <Head>
-      <title>Filmoji 🍿</title>
+      <title>{title}</title>
       <meta
         name="description"
         content="Filmoji ! Guess movies, tvshow or videogames by emojis"

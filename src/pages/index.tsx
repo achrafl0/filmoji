@@ -1,8 +1,9 @@
 import { type NextPage } from "next";
-import { api } from "@/utils/api";
+// import { api } from "@/utils/api";
 import { Input, Button, HeadLayout, PageLayout } from "@/components";
+import type { EmptyObject } from "@/utils";
 
-type Props = Record<string, never>;
+type Props = EmptyObject;
 
 const Home: NextPage<Props> = ({}) => {
   return (
@@ -13,8 +14,8 @@ const Home: NextPage<Props> = ({}) => {
           Start playing <span className="text-[#FCC252]">Filmoji 🍿</span>
         </h1>
         <div className="flex w-3/5 flex-row justify-items-center gap-4 align-middle">
-          <Input placeholder="Write your guess here !" />
-          <Button text="Guess" />
+          <Input placeholder="Your username" />
+          <Button text="Let's go !" />
         </div>
       </PageLayout>
     </>
