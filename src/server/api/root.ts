@@ -1,5 +1,5 @@
 import { createTRPCRouter } from "@/server/api/trpc";
-import { movieRouter } from "./routers/movies";
+import { questionRouter } from "./routers/questions";
 
 /**
  * This is the primary router for your server.
@@ -7,7 +7,7 @@ import { movieRouter } from "./routers/movies";
  * All routers added in /api/routers should be manually added here.
  */
 export const appRouter = createTRPCRouter({
-  movie: movieRouter,
+  question: questionRouter,
 });
 
 // export type definition of API

@@ -2,7 +2,7 @@ import { z } from "zod";
 import _sampleSize from "lodash/sampleSize";
 import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
 
-export const movieRouter = createTRPCRouter({
+export const questionRouter = createTRPCRouter({
   generateQuiz: publicProcedure
     .input(
       z.object({
@@ -13,7 +13,7 @@ export const movieRouter = createTRPCRouter({
     .query(async ({ ctx, input }) => {
       const { numberOfQuestions, username } = input;
 
-      const everyQuestion = await ctx.prisma.movie.findMany({
+      const everyQuestion = await ctx.prisma.question.findMany({
         select: { id: true },
       });
 
@@ -22,7 +22,7 @@ export const movieRouter = createTRPCRouter({
         numberOfQuestions
       ).map(({ id }) => id);
 
-      const randomQuestions = await ctx.prisma.movie.findMany({
+      const randomQuestions = await ctx.prisma.question.findMany({
         select: {
           emoji: true,
           id: true,
