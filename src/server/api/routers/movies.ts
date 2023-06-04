@@ -3,6 +3,8 @@ import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
 
 export const movieRouter = createTRPCRouter({
   getRandomMovie: publicProcedure.query(({ ctx }) => {
-    return ctx.prisma.movie.findFirst();
+    return {
+      emojis: "👑🦁",
+    };
   }),
 });

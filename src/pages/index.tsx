@@ -25,7 +25,7 @@ const Home: NextPage = (props) => {
           <h1 className="text-5xl font-extrabold tracking-tight text-white sm:text-[5rem]">
             Start playing <span className="text-[#FCC252]">Filmoji 🍿</span>
           </h1>
-          <div className="text-xl">Movie : {randomMovie.proposedEmoji}</div>
+          <div className="text-xl">Movie : {randomMovie.emojis}</div>
           <div className="flex w-3/5 flex-row justify-items-center gap-4 align-middle">
             <input
               placeholder="Hello"
