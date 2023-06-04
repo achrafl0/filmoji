@@ -2,17 +2,9 @@ import { type NextPage } from "next";
 import Head from "next/head";
 import { api } from "@/utils/api";
 
-const Home: NextPage = (props) => {
-  const {
-    data: randomMovie,
-    isLoading,
-    isError,
-  } = api.movie.getRandomMovie.useQuery();
+type Props = Record<string, never>;
 
-  if (isLoading || !randomMovie) return <p>Loading ...</p>;
-
-  if (isError) return <p>Error</p>;
-
+const Home: NextPage = ({}) => {
   return (
     <>
       <Head>
@@ -25,10 +17,9 @@ const Home: NextPage = (props) => {
           <h1 className="text-5xl font-extrabold tracking-tight text-white sm:text-[5rem]">
             Start playing <span className="text-[#FCC252]">Filmoji 🍿</span>
           </h1>
-          <div className="text-xl">Movie : {randomMovie.emojis}</div>
           <div className="flex w-3/5 flex-row justify-items-center gap-4 align-middle">
             <input
-              placeholder="Hello"
+              placeholder="Write a movie/TV Show/Video Game name here !"
               className="block  w-full rounded-lg border border-secondary-200 bg-transparent p-2.5 text-sm text-secondary-200 placeholder-secondary-400 focus:border-yellow-500 focus:ring-yellow-500"
             />
             <button className="rounded bg-primary-500 px-4 py-2 font-semibold text-gray-800 shadow hover:bg-primary-600">
