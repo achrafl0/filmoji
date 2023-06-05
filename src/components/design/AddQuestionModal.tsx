@@ -5,6 +5,7 @@ import { Input } from "./Input";
 import { api } from "@/utils/api";
 import { toast } from "react-hot-toast";
 import { noop } from "lodash";
+import { TRPCClientError } from "@trpc/client";
 
 type Props = {
   title: string;
@@ -29,8 +30,12 @@ export const Modal: NextComponentType<NextPageContext, Props, Props> = ({
       onError: (error) => {
         setEmojis("");
         setMovieName("");
+
         if (error.data?.zodError) {
-          toast.error(error.data.zodError.formErrors.join("\n"));
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+          const parsedError = JSON.parse(error.message)[0]
+            .message as unknown as string;
+          toast.error(parsedError);
           return;
         }
         toast.error("Oula t'a pété un truc, azy tag moi sur WA");

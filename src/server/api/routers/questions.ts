@@ -140,7 +140,7 @@ export const questionRouter = createTRPCRouter({
             2,
             "1 emoji ou moins, t'a cru les gens sont telepathes???? vasy bouge tchip"
           )
-          .max(20, "weshhhh on demande pas un résumé mon gaté"),
+          .max(255, "weshhhh on demande pas un résumé mon gaté"),
       })
     )
     .mutation(({ ctx, input }) => {
