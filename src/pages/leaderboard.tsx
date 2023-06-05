@@ -1,12 +1,11 @@
-import { useQuizStore } from "@/clientState/quizState";
-import { HeadLayout, LoadingPage, PageLayout } from "@/components";
+import { HeadLayout, LoadingPage } from "@/components";
 import { LeaderboardScore } from "@/components/design/LeaderboardScore";
 import type { EmptyObject } from "@/utils";
 import { api } from "@/utils/api";
 import type { NextPage } from "next";
 import Link from "next/link";
 
-const Leaderboard: NextPage<EmptyObject> = (props) => {
+const Leaderboard: NextPage<EmptyObject> = ({}) => {
   const { data: leaderboardData, isLoading } =
     api.question.getLeaderboard.useQuery();
 
