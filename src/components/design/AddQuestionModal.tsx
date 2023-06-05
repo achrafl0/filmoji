@@ -71,7 +71,7 @@ export const Modal: NextComponentType<NextPageContext, Props, Props> = ({
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl border border-primary-500 bg-white p-6 text-right align-middle shadow-xl transition-all">
+              <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl border border-primary-500 bg-gray-700 p-6 text-right align-middle shadow-xl transition-all">
                 <Dialog.Title
                   as="h3"
                   className="text-left text-lg font-medium leading-6 text-primary-500"
@@ -79,10 +79,10 @@ export const Modal: NextComponentType<NextPageContext, Props, Props> = ({
                   Add question
                 </Dialog.Title>
                 <div className="mb-2 mt-2 text-left">
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-gray-200">
                     Faites pas les cons, mettez des trucs possible
                   </p>
-                  <p className="text-xs italic text-gray-500">
+                  <p className="text-xs italic text-gray-200">
                     ( hein Newtono , pas de films qui sortent en 2025)
                   </p>
                 </div>

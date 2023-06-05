@@ -34,7 +34,7 @@ export const LeaderboardScore: NextComponentType<
         {" - "}
         {username}
         {" : "}
-        <span className="text-[#FCC252]">{score}</span>
+        <span className="text-primary-500">{score}</span>
       </h1>
     </div>
   );

@@ -9,14 +9,14 @@ export const PageLayout: ReactFCWithChildren = ({ children }) => {
   ]);
   return (
     <>
-      <header className="flex w-screen  flex-row content-end gap-2 bg-secondary-500 pl-2 pt-2">
+      <header className="flex w-screen  flex-row content-end gap-2 bg-gray-800 pl-2 pt-2">
         <Link href="/">
-          <h1 className="text-xl font-extrabold tracking-tight text-white ">
+          <h1 className="text-xl font-extrabold tracking-tight text-primary-500 ">
             🍿 |
           </h1>
         </Link>
         <Link href="/leaderboard">
-          <h1 className="text-xl font-extrabold tracking-tight text-white ">
+          <h1 className="text-xl font-extrabold tracking-tight text-primary-500 ">
             🏆
           </h1>
         </Link>
@@ -32,7 +32,7 @@ export const PageLayout: ReactFCWithChildren = ({ children }) => {
           </>
         )}
       </header>
-      <main className="flex max-h-screen min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#DC2026] to-[#7E1616]">
+      <main className="flex max-h-screen min-h-screen flex-col items-center justify-center bg-gray-800">
         <div className="container flex flex-col items-center justify-center gap-12 px-4 py-16 ">
           {children}
         </div>
