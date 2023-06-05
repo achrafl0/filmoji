@@ -3,14 +3,17 @@ import { api } from "@/utils/api";
 import { Input, Button, HeadLayout, PageLayout } from "@/components";
 import type { EmptyObject } from "@/utils";
 import toast from "react-hot-toast";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useQuizStore } from "@/clientState/quizState";
 import { shallow } from "zustand/shallow";
 type Props = EmptyObject;
 
 const Home: NextPage<Props> = ({}) => {
   const [username, setUsername] = useState<string>("");
-  const [startQuiz] = useQuizStore((state) => [state.startQuiz], shallow);
+  const [startQuiz, resetQuiz] = useQuizStore(
+    (state) => [state.startQuiz, state.reset],
+    shallow
+  );
   const { mutate } = api.question.generateQuiz.useMutation({
     onSuccess: async ({ questionsIds, quizId }) => {
       await startQuiz({
@@ -19,6 +22,10 @@ const Home: NextPage<Props> = ({}) => {
         username,
       });
     },
+  });
+
+  useEffect(() => {
+    resetQuiz();
   });
   return (
     <>

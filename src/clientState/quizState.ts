@@ -37,6 +37,8 @@ type Action = {
     currentQuizQuestionsIds,
     username,
   }: StateForQuizStart) => Promise<void>;
+
+  reset: () => void;
 };
 
 const initialState: State = {
