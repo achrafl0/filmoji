@@ -2,6 +2,7 @@
 import { create } from "zustand";
 import Router from "next/router";
 import { toast } from "react-hot-toast";
+import { api } from "@/utils/api";
 
 type State = {
   username: string | null;
@@ -20,6 +21,7 @@ type StateForQuizStart = Pick<
 type AnswerQuestionPayload = {
   question: string;
   isAnswerCorrect: boolean;
+  correctAnswer: string;
 };
 
 type Action = {
@@ -47,23 +49,22 @@ export const useQuizStore = create<State & Action>((set, get) => ({
   currentQuestionIndex: -1,
   finishedAt: null,
   currentQuizQuestionsIds: [],
-  answerQuestion: async ({ isAnswerCorrect, question }) => {
+  answerQuestion: async ({ isAnswerCorrect, question, correctAnswer }) => {
     if (isAnswerCorrect) {
       toast.success("Correct 🎉");
     } else {
-      toast.error("Wrong 🙊");
+      toast.error(`Wrong 🙊 The correct movie was ${correctAnswer}`);
     }
     const { currentQuestionIndex, currentQuizQuestionsIds, currentScore } =
       get();
     const isFinished =
       currentQuestionIndex === currentQuizQuestionsIds.length - 1;
     const nextScore =
-      currentScore + computeScore({ isAnswerCorrect, question });
+      currentScore + computeScore({ isAnswerCorrect, question, correctAnswer });
     const nextQuestionIndex = isFinished
       ? currentQuestionIndex
       : currentQuestionIndex + 1;
 
-    console.log({ nextScore, nextQuestionIndex, isFinished, currentScore });
     set({
       currentScore: nextScore,
       finishedAt: isFinished ? new Date() : null,

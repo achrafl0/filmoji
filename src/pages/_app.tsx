@@ -6,9 +6,8 @@ import { Toaster } from "react-hot-toast";
 const MyApp: AppType = ({ Component, pageProps }) => {
   return (
     <>
-      <p>Disabled for now, sorry</p>
-      {/* <Toaster />
-      <Component {...pageProps} /> */}
+      <Toaster />
+      <Component {...pageProps} />
     </>
   );
 };

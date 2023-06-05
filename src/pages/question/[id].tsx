@@ -17,8 +17,8 @@ import { shallow } from "zustand/shallow";
 type Props = InferGetStaticPropsType<typeof getStaticProps>;
 
 const QuestionPage: NextPage<Props> = ({
-  questionId,
-}: InferGetStaticPropsType<typeof getStaticProps>) => {
+      questionId,
+    }: InferGetStaticPropsType<typeof getStaticProps>) => {
   const [answer, setAnswer] = useState<string>("");
   const [answerQuestion] = useQuizStore(
     (state) => [state.answerQuestion],
@@ -34,10 +34,11 @@ const QuestionPage: NextPage<Props> = ({
 
   const { mutate: answerQuestionMutation, isLoading: isAnswering } =
     api.question.answerQuestion.useMutation({
-      onSuccess: async ({ isAnswerCorrect, questionEmoji }) => {
+      onSuccess: async ({ isAnswerCorrect, questionEmoji, correctAnswer }) => {
         await answerQuestion({
           isAnswerCorrect,
           question: questionEmoji,
+          correctAnswer,
         });
       },
     });

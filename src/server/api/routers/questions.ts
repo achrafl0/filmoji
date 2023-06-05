@@ -6,6 +6,7 @@ import { TRPCError } from "@trpc/server";
 const simplifyWordForComparaison = (word: string) => {
   return word
     .toLowerCase()
+    .replaceAll(/and/g, "")
     .replaceAll(/the/g, "")
     .replaceAll(/of/g, "")
     .replaceAll(/:/g, "")
@@ -90,6 +91,7 @@ export const questionRouter = createTRPCRouter({
       return {
         isAnswerCorrect,
         questionEmoji: question.emoji,
+        correctAnswer: question.name,
       };
     }),
 });
