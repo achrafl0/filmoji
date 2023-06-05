@@ -52,7 +52,7 @@ const Home: NextPage<Props> = ({}) => {
             onClick={() => {
               mutate({
                 username,
-                numberOfQuestions: 3,
+                numberOfQuestions: 5,
               });
             }}
           />

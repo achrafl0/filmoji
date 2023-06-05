@@ -5,7 +5,6 @@ import { Input } from "./Input";
 import { api } from "@/utils/api";
 import { toast } from "react-hot-toast";
 import { noop } from "lodash";
-import { TRPCClientError } from "@trpc/client";
 
 type Props = {
   title: string;
