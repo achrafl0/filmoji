@@ -22,7 +22,7 @@ const Leaderboard: NextPage<EmptyObject> = ({}) => {
             🍿 |
           </h1>
         </Link>
-        <Link href="/">
+        <Link href="/leaderboard">
           <h1 className="text-xl font-extrabold tracking-tight text-white ">
             🏆
           </h1>
