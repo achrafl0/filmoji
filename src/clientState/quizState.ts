@@ -2,15 +2,12 @@
 import { create } from "zustand";
 import Router from "next/router";
 import { toast } from "react-hot-toast";
-import { api } from "@/utils/api";
 
 type State = {
   username: string | null;
   currentQuizId: string | null;
   currentQuestionIndex: number;
   currentQuizQuestionsIds: string[];
-  finishedAt: Date | null;
-  startedAt: Date | null;
   currentScore: number;
 };
 
@@ -19,16 +16,21 @@ type StateForQuizStart = Pick<
   "currentQuizId" | "currentQuizQuestionsIds" | "username"
 >;
 type AnswerQuestionPayload = {
-  question: string;
-  isAnswerCorrect: boolean;
+  newScore: number;
+  isCorrectAnswer: boolean;
   correctAnswer: string;
 };
 
 type Action = {
   answerQuestion: ({
-    isAnswerCorrect,
-    question,
-  }: AnswerQuestionPayload) => Promise<void>;
+    isCorrectAnswer,
+    newScore,
+    correctAnswer,
+  }: AnswerQuestionPayload) => {
+    isFinished: boolean;
+    nextScore: number;
+    nextQuestionId: string;
+  };
 
   startQuiz: ({
     currentQuizId,
@@ -37,8 +39,12 @@ type Action = {
   }: StateForQuizStart) => Promise<void>;
 };
 
-const computeScore = ({ isAnswerCorrect, question }: AnswerQuestionPayload) => {
-  return isAnswerCorrect ? 100 * question.length : 0;
+const initialState: State = {
+  username: null,
+  currentScore: 0,
+  currentQuizId: null,
+  currentQuestionIndex: -1,
+  currentQuizQuestionsIds: [],
 };
 
 export const useQuizStore = create<State & Action>((set, get) => ({
@@ -47,37 +53,29 @@ export const useQuizStore = create<State & Action>((set, get) => ({
   currentScore: 0,
   currentQuizId: null,
   currentQuestionIndex: -1,
-  finishedAt: null,
   currentQuizQuestionsIds: [],
-  answerQuestion: async ({ isAnswerCorrect, question, correctAnswer }) => {
-    if (isAnswerCorrect) {
+  answerQuestion: ({ isCorrectAnswer, correctAnswer, newScore }) => {
+    if (isCorrectAnswer) {
       toast.success("Correct 🎉");
     } else {
       toast.error(`Wrong 🙊 The correct movie was ${correctAnswer}`);
     }
-    const { currentQuestionIndex, currentQuizQuestionsIds, currentScore } =
-      get();
+    const { currentQuestionIndex, currentQuizQuestionsIds } = get();
     const isFinished =
       currentQuestionIndex === currentQuizQuestionsIds.length - 1;
-    const nextScore =
-      currentScore + computeScore({ isAnswerCorrect, question, correctAnswer });
+    const nextScore = newScore;
     const nextQuestionIndex = isFinished
       ? currentQuestionIndex
       : currentQuestionIndex + 1;
 
+    const nextQuestionId = currentQuizQuestionsIds[nextQuestionIndex]!;
+
     set({
       currentScore: nextScore,
-      finishedAt: isFinished ? new Date() : null,
       currentQuestionIndex: nextQuestionIndex,
     });
-    if (isFinished) {
-      toast.success(`You finished the quiz ! You got ${nextScore}`);
-      await Router.push("/");
-      return;
-    }
-    await Router.push(
-      `/question/${currentQuizQuestionsIds[nextQuestionIndex]!}`
-    );
+
+    return { isFinished, nextScore, nextQuestionId };
   },
   startQuiz: async ({ currentQuizId, currentQuizQuestionsIds, username }) => {
     toast.success("Let's get started !");
@@ -87,9 +85,10 @@ export const useQuizStore = create<State & Action>((set, get) => ({
       currentQuizQuestionsIds,
       username,
       currentScore: 0,
-      startedAt: new Date(),
     });
 
     await Router.push(`/question/${currentQuizQuestionsIds[0]!}`);
   },
+
+  reset: () => set(initialState),
 }));

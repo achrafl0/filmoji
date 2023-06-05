@@ -6,12 +6,14 @@ type Props = {
   value?: string;
   onChange?: (value: string) => void;
   disabled?: boolean;
+  onValidate?: (value?: string) => void;
 };
 export const Input: NextComponentType<NextPageContext, Props, Props> = ({
   placeholder,
   onChange,
   value,
   disabled,
+  onValidate,
 }: Props) => {
   return (
     <input
@@ -19,6 +21,11 @@ export const Input: NextComponentType<NextPageContext, Props, Props> = ({
       value={value}
       disabled={!!disabled}
       onChange={(e) => (onChange ? onChange(e.target.value) : noop)}
+      onKeyDown={(e) => {
+        if (e.key === "Enter") {
+          onValidate ? onValidate(value) : noop;
+        }
+      }}
       className="block  w-full rounded-lg border border-secondary-200 bg-transparent p-2.5 text-sm text-secondary-200 placeholder-secondary-400 focus:border-yellow-500 focus:ring-yellow-500"
     />
   );

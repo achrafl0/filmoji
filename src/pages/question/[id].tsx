@@ -10,6 +10,7 @@ import { generateSSGHelper } from "@/server/helpers/ssgHelpers";
 import { api } from "@/utils/api";
 import { type DehydratedState } from "@tanstack/react-query";
 import type { GetStaticProps, NextPage, InferGetStaticPropsType } from "next";
+import { useRouter } from "next/router";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { shallow } from "zustand/shallow";
@@ -17,13 +18,17 @@ import { shallow } from "zustand/shallow";
 type Props = InferGetStaticPropsType<typeof getStaticProps>;
 
 const QuestionPage: NextPage<Props> = ({
-      questionId,
-    }: InferGetStaticPropsType<typeof getStaticProps>) => {
+  questionId,
+}: InferGetStaticPropsType<typeof getStaticProps>) => {
   const [answer, setAnswer] = useState<string>("");
-  const [answerQuestion] = useQuizStore(
-    (state) => [state.answerQuestion],
+  const router = useRouter();
+  const [answerQuestion, currentQuizId] = useQuizStore(
+    (state) => [state.answerQuestion, state.currentQuizId],
     shallow
   );
+  if (!currentQuizId) {
+    return <LoadingPage />;
+  }
   const {
     data: question,
     error: questionError,
@@ -32,14 +37,24 @@ const QuestionPage: NextPage<Props> = ({
     id: questionId,
   });
 
+  const { mutateAsync: validateQuizMutation } =
+    api.question.validateQuiz.useMutation();
+
   const { mutate: answerQuestionMutation, isLoading: isAnswering } =
     api.question.answerQuestion.useMutation({
-      onSuccess: async ({ isAnswerCorrect, questionEmoji, correctAnswer }) => {
-        await answerQuestion({
-          isAnswerCorrect,
-          question: questionEmoji,
+      onSuccess: async ({ correctAnswer, isCorrectAnswer, newScore }) => {
+        const { isFinished, nextQuestionId, nextScore } = answerQuestion({
           correctAnswer,
+          newScore,
+          isCorrectAnswer,
         });
+
+        if (isFinished) {
+          toast.success(`You finished the quiz ! You got ${nextScore}`);
+          await validateQuizMutation({ quizId: currentQuizId });
+          return await router.push("/");
+        }
+        return await router.push(`/question/${nextQuestionId}`);
       },
     });
 
@@ -50,6 +65,15 @@ const QuestionPage: NextPage<Props> = ({
   if (isQuestionLoading || !question) {
     return <LoadingPage />;
   }
+
+  const guess = () => {
+    answerQuestionMutation({
+      quizId: currentQuizId,
+      userAnswer: answer,
+      questionId,
+    });
+    setAnswer("");
+  };
 
   return (
     <>
@@ -64,17 +88,12 @@ const QuestionPage: NextPage<Props> = ({
             disabled={isAnswering}
             onChange={setAnswer}
             value={answer}
+            onValidate={guess}
           />
           <Button
             text={!isAnswering ? "Guess" : "Guessing..."}
             disabled={isAnswering}
-            onClick={() => {
-              answerQuestionMutation({
-                answer,
-                questionId,
-              });
-              setAnswer("");
-            }}
+            onClick={guess}
           />
         </div>
       </PageLayout>

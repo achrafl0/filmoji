@@ -2,17 +2,7 @@ import { z } from "zod";
 import _sampleSize from "lodash/sampleSize";
 import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
 import { TRPCError } from "@trpc/server";
-
-const simplifyWordForComparaison = (word: string) => {
-  return word
-    .toLowerCase()
-    .replaceAll(/and/g, "")
-    .replaceAll(/the/g, "")
-    .replaceAll(/of/g, "")
-    .replaceAll(/:/g, "")
-    .trim()
-    .replaceAll(/\s/g, "");
-};
+import { scoreQuestion } from "@/server/services/quiz/scoreQuestion";
 
 export const questionRouter = createTRPCRouter({
   generateQuiz: publicProcedure
@@ -38,6 +28,7 @@ export const questionRouter = createTRPCRouter({
         data: {
           username,
           numberOfQuestions,
+          score: 0,
         },
       });
 
@@ -68,7 +59,8 @@ export const questionRouter = createTRPCRouter({
     .input(
       z.object({
         questionId: z.string(),
-        answer: z.string(),
+        userAnswer: z.string(),
+        quizId: z.string(),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -77,21 +69,55 @@ export const questionRouter = createTRPCRouter({
         select: { name: true, emoji: true },
       });
 
-      if (!question) {
+      const quiz = await ctx.prisma.score.findFirst({
+        where: { id: input.quizId },
+      });
+
+      if (!question || !quiz || quiz.score === null) {
         throw new TRPCError({
           code: "NOT_FOUND",
           message: "No question found",
         });
       }
 
-      const isAnswerCorrect =
-        simplifyWordForComparaison(question.name) ===
-        simplifyWordForComparaison(input.answer);
+      const { isCorrectAnswer, nextScore } = scoreQuestion(quiz.score)({
+        correctAnswer: question.name,
+        difficulty: question.emoji.length,
+        lastAnsweredAt: quiz.updatedAt,
+        userAnswer: input.userAnswer,
+      });
+
+      await ctx.prisma.score.update({
+        where: {
+          id: input.quizId,
+        },
+        data: {
+          score: nextScore,
+        },
+      });
 
       return {
-        isAnswerCorrect,
-        questionEmoji: question.emoji,
         correctAnswer: question.name,
+        isCorrectAnswer,
+        newScore: nextScore,
       };
+    }),
+
+  validateQuiz: publicProcedure
+    .input(
+      z.object({
+        quizId: z.string(),
+      })
+    )
+    .mutation(({ ctx, input }) => {
+      console.log("HELLO");
+      return ctx.prisma.score.update({
+        where: {
+          id: input.quizId,
+        },
+        data: {
+          submittedAt: new Date(),
+        },
+      });
     }),
 });
