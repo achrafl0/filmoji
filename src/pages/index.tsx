@@ -2,7 +2,6 @@ import { type NextPage } from "next";
 import { api } from "@/utils/api";
 import { Input, Button, HeadLayout, PageLayout, Modal } from "@/components";
 import type { EmptyObject } from "@/utils";
-import toast from "react-hot-toast";
 import { useEffect, useState } from "react";
 import { useQuizStore } from "@/clientState/quizState";
 import { shallow } from "zustand/shallow";

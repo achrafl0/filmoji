@@ -152,4 +152,39 @@ export const questionRouter = createTRPCRouter({
         },
       });
     }),
+
+  getLeaderboard: publicProcedure
+    .output(
+      z.array(
+        z.object({ username: z.string(), score: z.number(), id: z.string() })
+      )
+    )
+    .query(async ({ ctx }) => {
+      const leaderboard = await ctx.prisma.score.findMany({
+        orderBy: {
+          score: "desc",
+        },
+        where: {
+          AND: [
+            {
+              NOT: {
+                submittedAt: null,
+              },
+            },
+            {
+              NOT: {
+                score: null,
+              },
+            },
+          ],
+        },
+        take: 10,
+        select: {
+          score: true,
+          username: true,
+          id: true,
+        },
+      });
+      return leaderboard as { username: string; score: number; id: string }[];
+    }),
 });
