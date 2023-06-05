@@ -1,6 +1,6 @@
 import { type NextPage } from "next";
 import { api } from "@/utils/api";
-import { Input, Button, HeadLayout, PageLayout } from "@/components";
+import { Input, Button, HeadLayout, PageLayout, Modal } from "@/components";
 import type { EmptyObject } from "@/utils";
 import toast from "react-hot-toast";
 import { useEffect, useState } from "react";
@@ -10,6 +10,7 @@ type Props = EmptyObject;
 
 const Home: NextPage<Props> = ({}) => {
   const [username, setUsername] = useState<string>("");
+  const [isModalOpened, setModalState] = useState<boolean>(false);
   const [startQuiz, resetQuiz] = useQuizStore(
     (state) => [state.startQuiz, state.reset],
     shallow
@@ -30,6 +31,13 @@ const Home: NextPage<Props> = ({}) => {
   return (
     <>
       <HeadLayout />
+      <Modal
+        isOpen={isModalOpened}
+        onClose={() => {
+          setModalState(false);
+        }}
+        title="Add a question"
+      />
       <PageLayout>
         <h1 className="text-5xl font-extrabold tracking-tight text-white sm:text-[5rem]">
           Start playing <span className="text-[#FCC252]">Filmoji 🍿</span>
@@ -50,6 +58,12 @@ const Home: NextPage<Props> = ({}) => {
             }}
           />
         </div>
+        <Button
+          text="+ Add question"
+          onClick={() => {
+            setModalState(true);
+          }}
+        />
       </PageLayout>
     </>
   );

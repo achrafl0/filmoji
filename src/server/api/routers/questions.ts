@@ -8,7 +8,9 @@ export const questionRouter = createTRPCRouter({
   generateQuiz: publicProcedure
     .input(
       z.object({
-        username: z.string(),
+        username: z
+          .string()
+          .min(1, "comment ça mon boeuf, tu t'appelles RIEN ????"),
         numberOfQuestions: z.number().min(2).max(10),
       })
     )
@@ -59,7 +61,7 @@ export const questionRouter = createTRPCRouter({
     .input(
       z.object({
         questionId: z.string(),
-        userAnswer: z.string(),
+        userAnswer: z.string().max(255, "on t'a pas demandé un résume"),
         quizId: z.string(),
       })
     )
@@ -117,6 +119,36 @@ export const questionRouter = createTRPCRouter({
         },
         data: {
           submittedAt: new Date(),
+        },
+      });
+    }),
+
+  addQuestion: publicProcedure
+    .input(
+      z.object({
+        name: z
+          .string()
+          .min(
+            3,
+            "frero, c koi ce film qui fait moins de 3 lettres, bon a part 'ça', fait pas iech"
+          )
+          .max(255, "on demande pas le résumé frero"),
+        emojis: z
+          .string()
+          .emoji("Tu comprends pas quoi à EMOJIS ??? 👍🏽")
+          .min(
+            2,
+            "1 emoji ou moins, t'a cru les gens sont telepathes???? vasy bouge tchip"
+          )
+          .max(20, "weshhhh on demande pas un résumé mon gaté"),
+      })
+    )
+    .mutation(({ ctx, input }) => {
+      return ctx.prisma.question.create({
+        data: {
+          emoji: input.emojis,
+          name: input.name,
+          type: "movie",
         },
       });
     }),

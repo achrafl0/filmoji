@@ -26,7 +26,7 @@ export const Input: NextComponentType<NextPageContext, Props, Props> = ({
           onValidate ? onValidate(value) : noop;
         }
       }}
-      className="block  w-full rounded-lg border border-secondary-200 bg-transparent p-2.5 text-sm text-secondary-200 placeholder-secondary-400 focus:border-yellow-500 focus:ring-yellow-500"
+      className="block  w-full rounded-lg border border-secondary-200 bg-transparent p-2.5 text-sm text-gray-500 placeholder-secondary-200 focus:border-yellow-500 focus:ring-yellow-500"
     />
   );
 };

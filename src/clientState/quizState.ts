@@ -41,8 +41,7 @@ type Action = {
   reset: () => void;
 };
 
-const initialState: State = {
-  username: null,
+const initialState: Partial<State> = {
   currentScore: 0,
   currentQuizId: null,
   currentQuestionIndex: -1,
