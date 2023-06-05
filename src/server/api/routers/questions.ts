@@ -3,6 +3,16 @@ import _sampleSize from "lodash/sampleSize";
 import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
 import { TRPCError } from "@trpc/server";
 
+const simplifyWordForComparaison = (word: string) => {
+  return word
+    .toLowerCase()
+    .replaceAll(/the/g, "")
+    .replaceAll(/of/g, "")
+    .replaceAll(/:/g, "")
+    .trim()
+    .replaceAll(/\s/g, "");
+};
+
 export const questionRouter = createTRPCRouter({
   generateQuiz: publicProcedure
     .input(
@@ -62,5 +72,34 @@ export const questionRouter = createTRPCRouter({
       }
 
       return question;
+    }),
+
+  answerQuestion: publicProcedure
+    .input(
+      z.object({
+        questionId: z.string(),
+        answer: z.string(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const question = await ctx.prisma.question.findUnique({
+        where: { id: input.questionId },
+        select: { name: true },
+      });
+
+      if (!question) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "No question found",
+        });
+      }
+
+      const isCorrectAnswer =
+        simplifyWordForComparaison(question.name) ===
+        simplifyWordForComparaison(input.answer);
+
+      return {
+        isCorrectAnswer,
+      };
     }),
 });

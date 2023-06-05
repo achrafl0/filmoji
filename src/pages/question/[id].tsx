@@ -5,30 +5,43 @@ import {
   Input,
   LoadingPage,
 } from "@/components";
-import type { EmptyObject } from "@/utils";
+import { generateSSGHelper } from "@/server/helpers/ssgHelpers";
 import { api } from "@/utils/api";
-import type { NextPage } from "next";
-import { useRouter } from "next/router";
+import { type DehydratedState } from "@tanstack/react-query";
+import type { GetStaticProps, NextPage, InferGetStaticPropsType } from "next";
+import { useState } from "react";
+import toast from "react-hot-toast";
 
-const QuestionPage: NextPage = ({}: EmptyObject) => {
-  const router = useRouter();
-  const questionId = router.query.id;
-  if (!questionId || Array.isArray(questionId)) {
-    return <p>404</p>;
-  }
+type Props = InferGetStaticPropsType<typeof getStaticProps>;
+
+const QuestionPage: NextPage<Props> = ({
+  questionId,
+}: InferGetStaticPropsType<typeof getStaticProps>) => {
+  const [answer, setAnswer] = useState<string>("");
   const {
     data: question,
-    error,
-    isLoading,
+    error: questionError,
+    isLoading: isQuestionLoading,
   } = api.question.getQuestionById.useQuery({
     id: questionId,
   });
 
-  if (error) {
+  const { mutate: answerQuestion, isLoading: isAnswering } =
+    api.question.answerQuestion.useMutation({
+      onSuccess: ({ isCorrectAnswer }) => {
+        if (isCorrectAnswer) {
+          return toast.success("Correct ! 🎉");
+          // navigate at something else
+        }
+        return toast.error("Try again !");
+      },
+    });
+
+  if (questionError) {
     return <p>Error oupsi</p>;
   }
 
-  if (isLoading || !question) {
+  if (isQuestionLoading || !question) {
     return <LoadingPage />;
   }
 
@@ -40,12 +53,50 @@ const QuestionPage: NextPage = ({}: EmptyObject) => {
           {question.emoji}
         </h1>
         <div className="flex w-3/5 flex-row justify-items-center gap-4 align-middle">
-          <Input placeholder="Write your guess here !" />
-          <Button text="Guess" />
+          <Input
+            placeholder="Write your guess here !"
+            disabled={isAnswering}
+            onChange={setAnswer}
+            value={answer}
+          />
+          <Button
+            text="Guess"
+            disabled={isAnswering}
+            onClick={() =>
+              answerQuestion({
+                answer,
+                questionId,
+              })
+            }
+          />
         </div>
       </PageLayout>
     </>
   );
+};
+
+export const getStaticProps: GetStaticProps<{
+  questionId: string;
+  trpcState: DehydratedState;
+}> = async (context) => {
+  const ssg = generateSSGHelper();
+
+  const questionId = context.params?.id;
+
+  if (typeof questionId !== "string") throw new Error("no id");
+
+  await ssg.question.getQuestionById.prefetch({ id: questionId });
+
+  return {
+    props: {
+      trpcState: ssg.dehydrate(),
+      questionId,
+    },
+  };
+};
+
+export const getStaticPaths = () => {
+  return { paths: [], fallback: "blocking" };
 };
 
 export default QuestionPage;
