@@ -1,3 +1,4 @@
+import { useQuizStore } from "@/clientState/quizState";
 import {
   HeadLayout,
   PageLayout,
@@ -11,6 +12,7 @@ import { type DehydratedState } from "@tanstack/react-query";
 import type { GetStaticProps, NextPage, InferGetStaticPropsType } from "next";
 import { useState } from "react";
 import toast from "react-hot-toast";
+import { shallow } from "zustand/shallow";
 
 type Props = InferGetStaticPropsType<typeof getStaticProps>;
 
@@ -18,6 +20,10 @@ const QuestionPage: NextPage<Props> = ({
   questionId,
 }: InferGetStaticPropsType<typeof getStaticProps>) => {
   const [answer, setAnswer] = useState<string>("");
+  const [answerQuestion] = useQuizStore(
+    (state) => [state.answerQuestion],
+    shallow
+  );
   const {
     data: question,
     error: questionError,
@@ -26,14 +32,13 @@ const QuestionPage: NextPage<Props> = ({
     id: questionId,
   });
 
-  const { mutate: answerQuestion, isLoading: isAnswering } =
+  const { mutate: answerQuestionMutation, isLoading: isAnswering } =
     api.question.answerQuestion.useMutation({
-      onSuccess: ({ isCorrectAnswer }) => {
-        if (isCorrectAnswer) {
-          return toast.success("Correct ! 🎉");
-          // navigate at something else
-        }
-        return toast.error("Try again !");
+      onSuccess: async ({ isAnswerCorrect, questionEmoji }) => {
+        await answerQuestion({
+          isAnswerCorrect,
+          question: questionEmoji,
+        });
       },
     });
 
@@ -60,14 +65,15 @@ const QuestionPage: NextPage<Props> = ({
             value={answer}
           />
           <Button
-            text="Guess"
+            text={!isAnswering ? "Guess" : "Guessing..."}
             disabled={isAnswering}
-            onClick={() =>
-              answerQuestion({
+            onClick={() => {
+              answerQuestionMutation({
                 answer,
                 questionId,
-              })
-            }
+              });
+              setAnswer("");
+            }}
           />
         </div>
       </PageLayout>

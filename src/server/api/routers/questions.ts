@@ -21,7 +21,7 @@ export const questionRouter = createTRPCRouter({
         numberOfQuestions: z.number().min(2).max(10),
       })
     )
-    .query(async ({ ctx, input }) => {
+    .mutation(async ({ ctx, input }) => {
       const { numberOfQuestions, username } = input;
 
       const everyQuestion = await ctx.prisma.question.findMany({
@@ -33,17 +33,6 @@ export const questionRouter = createTRPCRouter({
         numberOfQuestions
       ).map(({ id }) => id);
 
-      const randomQuestions = await ctx.prisma.question.findMany({
-        select: {
-          emoji: true,
-          id: true,
-          type: true,
-        },
-        where: {
-          id: { in: randomQuestionsIds },
-        },
-      });
-
       const createdScore = await ctx.prisma.score.create({
         data: {
           username,
@@ -52,8 +41,8 @@ export const questionRouter = createTRPCRouter({
       });
 
       return {
-        questions: randomQuestions,
-        scoreId: createdScore.id,
+        questionsIds: randomQuestionsIds,
+        quizId: createdScore.id,
       };
     }),
   getQuestionById: publicProcedure
@@ -84,7 +73,7 @@ export const questionRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const question = await ctx.prisma.question.findUnique({
         where: { id: input.questionId },
-        select: { name: true },
+        select: { name: true, emoji: true },
       });
 
       if (!question) {
@@ -94,12 +83,13 @@ export const questionRouter = createTRPCRouter({
         });
       }
 
-      const isCorrectAnswer =
+      const isAnswerCorrect =
         simplifyWordForComparaison(question.name) ===
         simplifyWordForComparaison(input.answer);
 
       return {
-        isCorrectAnswer,
+        isAnswerCorrect,
+        questionEmoji: question.emoji,
       };
     }),
 });
